@@ -4,6 +4,11 @@ Claude Codeプロジェクト用のマルチ技術スタック対応テンプレ
 
 **核心: 「品質を自動で強制しながら、開発者の負担を減らす」**
 
+**このテンプレートでできること:**
+- テストを書かないと実装が進まない（TDD強制）
+- コミット時に自動でAI臭を除去（deslop）
+- CI失敗時に自動診断・修正提案（fix-ci）
+
 ## テンプレートの概要
 
 このテンプレートは、Claude Code用の包括的な開発環境で、以下を提供します：
@@ -13,7 +18,25 @@ Claude Codeプロジェクト用のマルチ技術スタック対応テンプレ
 - **自動トリガースキル** で品質を強制
 - **手動コマンド** で明示的なワークフロー制御
 
+## クイックスタート（30秒で開始）
+
+```bash
+cp -r .claude /path/to/your/project/
+cp CLAUDE.md /path/to/your/project/
+cd /path/to/your/project && claude
+```
+
+起動後、Plan Modeで要件を伝えるだけ。TDDスキルが自動適用されます。
+
 ## セットアップ
+
+### 必要条件
+
+- [Claude Code CLI](https://docs.anthropic.com/claude-code)
+- [GitHub CLI](https://cli.github.com/) (`gh`) - fix-ci機能に必要
+- Git
+
+### 手順
 
 ```bash
 # 1. テンプレートをプロジェクトにコピー
@@ -25,15 +48,15 @@ cd /path/to/your/project
 claude
 ```
 
-### 必要条件
-
-- [Claude Code CLI](https://docs.anthropic.com/claude-code)
-- [GitHub CLI](https://cli.github.com/) (`gh`) - fix-ci機能に必要
-- Git
-
 ---
 
 ## 3つの開発ワークフロー
+
+| ワークフロー | 複雑度 | 最適な場面 |
+|-------------|--------|-----------|
+| Plan Mode + /dig | 低 | 新機能、要件が曖昧なタスク |
+| Scrum開発 | 高 | 複数PBI、大規模プロジェクト |
+| TDD開発 | 低 | 単機能追加、バグ修正 |
 
 ### 1. Plan Mode + /dig（推奨・最もシンプル）
 
@@ -45,14 +68,15 @@ claude
 
 2. Claude Codeが調査・計画を立てる
 
-3. /dig で要件を言語化
-   構造化された質問で曖昧な点を明確化
-   → 人間が決断を提供
+3. 曖昧な点があれば /dig を実行（手動）
+   → Claudeが選択肢形式で質問
+   → ユーザーが選択して決定
 
 4. Plan Modeを抜けて実装
-   完成度の高いPlanを元に実装
    （TDDスキルが自動適用）
 ```
+
+**ポイント**: `/dig` は手動コマンド。曖昧な点がなければスキップ可。
 
 **ユースケース**: 新機能開発、複雑な変更、要件が曖昧なタスク
 
@@ -105,6 +129,8 @@ claude
 5. コミット時にgit-commitスキルでWHY-focusedメッセージ
 ```
 
+**使用ワークフロー**: Plan Mode + /dig
+
 ### シナリオB: バグを修正したい
 
 ```
@@ -114,6 +140,8 @@ claude
 4. 必要ならリファクタ
 5. コミット
 ```
+
+**使用ワークフロー**: TDD開発
 
 ### シナリオC: Scrumで開発を管理したい
 
@@ -125,6 +153,8 @@ claude
 5. Sprint Review/Retrospectiveを実施
 ```
 
+**使用ワークフロー**: Scrum開発
+
 ### シナリオD: 既存コードをリファクタしたい
 
 ```
@@ -134,9 +164,20 @@ claude
 4. 各改善ごとにコミット（Tidy First原則）
 ```
 
+**使用ワークフロー**: TDD開発（tidyingスキル）
+
 ---
 
 ## 機能一覧
+
+このテンプレートには4種類の機能があります：
+
+| 種類 | 動作 | 説明 |
+|------|------|------|
+| **Skills** | 自動トリガー | 条件を満たすと自動で動作 |
+| **Commands** | 手動実行 | `/command` で明示的に実行 |
+| **Rules** | 常時有効 | 常にバックグラウンドで適用 |
+| **Agents** | サブタスク | 特定タスクを専門エージェントに委譲 |
 
 ### Skills（自動トリガー）
 
@@ -165,17 +206,6 @@ claude
 | `/scrum:init` | AI-Agentic Scrum初期化 | 新プロジェクト開始時 |
 
 ### Rules（常時有効）
-
-#### quality-guardrails
-- テストを通すためにテストを弱めない
-- lint設定を緩めない
-- CI設定を変更しない
-- 実装を直すことで解決する
-
-#### workflow
-- 小さなインクリメントで開発
-- TDD Red-Green-Refactor サイクル
-- コミット前にテスト/lint実行
 
 #### claude/config-maintenance
 - Claude Code設定ファイルのメンテナンスガイド
@@ -223,9 +253,7 @@ claude
 │   ├── scrum/                # Scrumコマンド
 │   └── go.md                 # 次ステップ実行
 ├── rules/                     # ルール（常時有効）
-│   ├── claude/               # Claude Code設定ルール
-│   ├── quality-guardrails.md # テスト/lint品質保証
-│   └── workflow.md           # 開発ワークフロー
+│   └── claude/               # Claude Code設定ルール
 └── skills/                    # スキル（自動トリガー）
     ├── tdd/                  # TDD methodology
     ├── tidying/              # Tidy First methodology
